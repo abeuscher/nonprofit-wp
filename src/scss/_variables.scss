@@ -1,0 +1,13 @@
+//config
+$cdn-path: "/wp-content/themes/watertowncommunitygardens/";
+$img-path: $cdn-path + "images/";
+$font-path: $cdn-path + "/fonts/";
+
+//Breakpoints
+$bps: (
+  xs: 0,
+  s: 641px,
+  m: 1025px,
+  l: 1321px,
+  xl: 1921px,
+);

@@ -1,0 +1,27 @@
+{
+  "name": "the-beuschers",
+  "version": "2.0.0",
+  "description": "Site theme for thebeuschers.com",
+  "main": "build.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node build.js"
+  },
+  "author": "Alex Beuscher",
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.19.3",
+    "esbuild-plugin-pug": "^0.0.8",
+    "fs": "^0.0.1-security",
+    "fs-extra": "^11.1.1",
+    "path": "^0.12.7",
+    "prettier": "^3.0.3",
+    "pug": "^3.0.2",
+    "pug-php-filter": "^0.0.1",
+    "sass": "^1.67.0"
+  },
+  "dependencies": {
+    "chokidar": "^3.5.3",
+    "swiper": "^10.2.0"
+  }
+}
