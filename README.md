@@ -1,6 +1,6 @@
-## watertowncommunitygardens - site theme
+## nonprofit wordpress - site theme
 
-# v 2.0
+# v 1.0
 
 This is a Wordpress theme.
 
