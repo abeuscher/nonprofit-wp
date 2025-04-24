@@ -23,11 +23,12 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "2"
-          memory: 6G
+          cpus: "4"
+          memory: 16G
     networks:
       - wcgwebsite
     image: mysql:8.0
+    command: --log_bin_trust_function_creators=1
     container_name: "wcgmysql"
     restart: "always"
     ports:
@@ -35,6 +36,7 @@ services:
     volumes:
       - ${MYSQL_DATA_DIR-./data/mysql}:/var/lib/mysql
       - ${MYSQL_LOG_DIR-./logs/mysql}:/var/log/mysql
+      - ./bin/mysql/custom.cnf:/etc/mysql/conf.d/custom.cnf:ro
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}

@@ -1,4 +1,5 @@
 app
+bin/plugins
 logs
 node_modules
 public_html
