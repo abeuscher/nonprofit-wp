@@ -1,0 +1,88 @@
+// Footer styles
+.site-footer {
+  padding: 50px 0;
+  background-color: var(--wp--preset--color--garden-green);
+  color: var(--wp--preset--color--base);
+
+  // Footer columns layout
+  .footer-columns {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+
+    .wp-block-column {
+      flex: 1;
+      min-width: 200px;
+      margin-bottom: 20px;
+
+      @media (max-width: 768px) {
+        flex-basis: 50%;
+      }
+
+      @media (max-width: 480px) {
+        flex-basis: 100%;
+      }
+    }
+  }
+
+  // Branding section
+  .footer-branding {
+    .footer-logo-group {
+      margin-bottom: 20px;
+    }
+
+    .wp-site-blocks .wp-block-site-title {
+      margin-top: 10px;
+      margin-bottom: 5px;
+    }
+
+    .wp-block-site-tagline {
+      opacity: 0.8;
+    }
+  }
+
+  // Navigation headings
+  .footer-heading {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+  }
+
+  // Navigation links
+  .wp-block-navigation {
+    display: flex;
+    flex-direction: column;
+
+    a {
+      color: var(--wp--preset--color--base);
+      text-decoration: none;
+      padding: 5px 0;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
+  // Footer credits
+  .footer-credits {
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+
+    .copyright {
+      opacity: 0.8;
+
+      a {
+        color: var(--wp--preset--color--base);
+        text-decoration: underline;
+
+        &:hover {
+          text-decoration: none;
+        }
+      }
+    }
+  }
+}

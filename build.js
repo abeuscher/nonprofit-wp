@@ -34,8 +34,6 @@ const buildSite = () => {
       }
     });
 
-    // Build templates first to ensure they are available for scripts and styles
-    buildTemplates(siteSettings);
     console.log("Templates built successfully.");
 
     // Build scripts next

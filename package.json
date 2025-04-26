@@ -1,7 +1,7 @@
 {
-  "name": "the-beuschers",
-  "version": "2.0.0",
-  "description": "Site theme for thebeuschers.com",
+  "name": "non-profit-demo",
+  "version": "1.0.0",
+  "description": "Site theme for Demo",
   "main": "build.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

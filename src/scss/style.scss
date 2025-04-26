@@ -1,10 +1,10 @@
 /*
 Theme Name: Watertown Community Gardens
-Theme URI: https://wordpress.org/themes/twentytwentyfour/
-Description: Child theme for Twenty Twenty-Four
+Theme URI: https://wordpress.org/themes/twentytwentyfive/
+Description: Child theme for Twenty Twenty-Five
 Author: Alex Beuscher
 Author URI: https://alexbeuscher.com
-Template: twentytwentyfour
+Template: twentytwentyfive
 Version: 1.0
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -13,4 +13,5 @@ Text Domain: wcg-theme
 @use "variables";
 @use "layout";
 @use "base";
+@use "footer";
 @import url("https://fonts.googleapis.com/css2?family=Lato&display=swap");
