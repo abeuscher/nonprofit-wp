@@ -42,3 +42,4 @@ jobs:
           source: "public_html/wp-content/themes/watertowncommunitygardens/*"
           target: "/var/www/html/wp-content/themes/watertowncommunitygardens/"
           overwrite: true
+          strip_components: 4
