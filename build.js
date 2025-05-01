@@ -11,7 +11,6 @@ const isSilent = args.includes("--silent") || args.includes("-s");
 const siteSettings = require("./settings.js")();
 siteSettings.isSilent = isSilent;
 
-const buildTemplates = require("./build/buildTemplates.js");
 const buildScripts = require("./build/buildScripts.js");
 const buildStyles = require("./build/buildStyles.js");
 
@@ -38,7 +37,24 @@ const clearDir = (directory, cb) => {
   });
 };
 
-const buildSite = () => {
+// Helper to wait for file to exist and have content
+const waitForFile = (filePath, maxWaitMs = 5000) => {
+  return new Promise((resolve, reject) => {
+    const startTime = Date.now();
+    const checkFile = () => {
+      if (fs.existsSync(filePath) && fs.statSync(filePath).size > 0) {
+        resolve(true);
+      } else if (Date.now() - startTime > maxWaitMs) {
+        reject(new Error(`Timeout waiting for file: ${filePath}`));
+      } else {
+        setTimeout(checkFile, 100); // Check every 100ms
+      }
+    };
+    checkFile();
+  });
+};
+
+const buildSite = async () => {
   try {
     // Ensure all build directories exist
     siteSettings.directories.forEach((dir) => {
@@ -47,26 +63,13 @@ const buildSite = () => {
       }
     });
 
-    // Build templates first - make sure this function actually builds the templates
-    const templatesResult = buildTemplates(siteSettings);
-    log("Templates built successfully.");
-    if (isSilent && templatesResult === false) {
-      throw new Error("Template build failed");
-    }
-
-    // Build scripts next - make sure this function actually builds the scripts
-    const scriptsResult = buildScripts(siteSettings);
+    // Build scripts
+    await buildScripts(siteSettings);
     log("Scripts built successfully.");
-    if (isSilent && scriptsResult === false) {
-      throw new Error("Script build failed");
-    }
 
-    // Finally, build styles - make sure this function actually builds the styles
-    const stylesResult = buildStyles(siteSettings);
+    // Build styles
+    await buildStyles(siteSettings);
     log("Styles built successfully.");
-    if (isSilent && stylesResult === false) {
-      throw new Error("Style build failed");
-    }
 
     // Copy assets
     siteSettings.assets.forEach((asset) => {
@@ -90,48 +93,70 @@ const buildSite = () => {
       }
     }
 
-    // Add a verification step for silent mode
+    // Add a verification step with proper waiting for files
     if (isSilent) {
-      // Check if critical files exist and have content
-      const filesToCheck = [
-        path.join(siteSettings.jsFiles[0].buildDir, siteSettings.jsFiles[0].buildFileName),
-        // Add other critical files here
-      ];
+      // Key files to verify
+      const jsFilePath = path.join(
+        siteSettings.jsFiles[0].buildDir,
+        siteSettings.jsFiles[0].buildFileName,
+      );
 
-      for (const file of filesToCheck) {
-        if (!fs.existsSync(file) || fs.statSync(file).size === 0) {
-          throw new Error(`Build verification failed: File ${file} is missing or empty`);
-        }
+      // Wait for files to be ready (with timeout)
+      try {
+        log("Verifying build files...");
+        await waitForFile(jsFilePath);
+        log("JS file verified successfully.");
+      } catch (err) {
+        throw new Error(`Build verification failed: ${err.message}`);
       }
     }
 
     log("Build process completed successfully.");
 
-    // If in silent mode, exit after build completes (for CI/CD environments)
+    // If in silent mode, exit after build completes
     if (isSilent) {
-      process.exit(0);
+      // Small delay to ensure any pending writes are completed
+      setTimeout(() => {
+        process.exit(0);
+      }, 1000);
     }
   } catch (err) {
     console.error("Error during build process:", err);
-    // Always exit with error code in case of failure
+    // Exit with error code in case of failure
     if (isSilent) {
       process.exit(1);
     }
   }
 };
 
-// Clear template directory and start build process
-clearDir(siteSettings.templates[0].buildDir, buildSite);
+// Start build process with async handling
+const startBuild = async () => {
+  try {
+    // Create the build directories
+    await new Promise((resolve) => {
+      // Make sure build directories exist
+      siteSettings.directories.forEach((dir) => {
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+      });
+      resolve();
+    });
 
-// Only set up file watchers in development mode (not in silent/CI mode)
+    await buildSite();
+  } catch (err) {
+    console.error("Build failed:", err);
+    if (isSilent) {
+      process.exit(1);
+    }
+  }
+};
+
+// Run the build
+startBuild();
+
+// Only set up file watchers in development mode
 if (!isSilent) {
-  // Set up file watchers for continuous development
-  const templateWatcher = chokidar.watch(siteSettings.templates[0].srcDir);
-  templateWatcher.on("change", () => {
-    log("Template change detected.");
-    buildTemplates(siteSettings);
-  });
-
   const scriptWatcher = chokidar.watch(siteSettings.jsFiles[0].srcDir);
   scriptWatcher.on("change", () => {
     log("Script change detected.");
