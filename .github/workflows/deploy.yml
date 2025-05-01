@@ -21,7 +21,7 @@ jobs:
         run: npm install
 
       - name: Build theme
-        run: node build.js --silent
+        run: node build.js
 
       - name: Debug build output
         run: |

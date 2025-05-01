@@ -79,17 +79,16 @@ const buildSite = () => {
     }
 
     log("Build process completed successfully.");
-
-    // If in silent mode, exit after build completes (for CI/CD environments)
-    if (isSilent) {
-      process.exit(0);
-    }
   } catch (err) {
     console.error("Error during build process:", err);
     // Always exit with error code in case of failure
     if (isSilent) {
       process.exit(1);
     }
+  }
+  // If in silent mode, exit after build completes (for CI/CD environments)
+  if (isSilent) {
+    process.exit(0);
   }
 };
 
