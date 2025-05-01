@@ -5,7 +5,6 @@ const path = require("path");
 
 const siteSettings = require("./settings.js")();
 
-const buildTemplates = require("./build/buildTemplates.js");
 const buildScripts = require("./build/buildScripts.js");
 const buildStyles = require("./build/buildStyles.js");
 
@@ -44,10 +43,6 @@ const buildSite = () => {
         fs.mkdirSync(dir, { recursive: true });
       }
     });
-
-    // Build templates first
-    buildTemplates(siteSettings);
-    log("Templates built successfully.");
 
     // Build scripts next
     buildScripts(siteSettings);
