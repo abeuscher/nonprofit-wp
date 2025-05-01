@@ -26,10 +26,7 @@ jobs:
       - name: Debug build output
         run: |
           ls -la public_html/wp-content/themes/watertowncommunitygardens/
-          du -sh public_html/wp-content/themes/watertowncommunitygardens/
-          find public_html/wp-content/themes/watertowncommunitygardens/ -type f | wc -l
-          ls -la public_html/wp-content/themes/watertowncommunitygardens/js/
-          cat public_html/wp-content/themes/watertowncommunitygardens/style.css | wc -l
+          find public_html -type d | sort
 
       - name: Deploy to Digital Ocean
         uses: appleboy/ssh-action@master
@@ -48,8 +45,9 @@ jobs:
           host: ${{ secrets.DO_HOST }}
           username: deploy
           key: ${{ secrets.DO_SSH_KEY }}
-          source: "public_html/wp-content/themes/watertowncommunitygardens/*"
-          target: "/var/www/html/wp-content/themes/watertowncommunitygardens/"
+          source: "public_html/wp-content/themes/watertowncommunitygardens/"
+          target: "/var/www/html/wp-content/themes/"
+          strip_components: 3
           overwrite: true
           debug: true
 
@@ -61,7 +59,4 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
             ls -la /var/www/html/wp-content/themes/watertowncommunitygardens/
-            du -sh /var/www/html/wp-content/themes/watertowncommunitygardens/
-            find /var/www/html/wp-content/themes/watertowncommunitygardens/ -type f | wc -l
-            ls -la /var/www/html/wp-content/themes/watertowncommunitygardens/js/
-            head -n 10 /var/www/html/wp-content/themes/watertowncommunitygardens/style.css || echo "Cannot read style.css"
+            find /var/www/html/wp-content/themes/watertowncommunitygardens/ -type f | sort
