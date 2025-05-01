@@ -41,4 +41,4 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           source: "public_html/wp-content/themes/watertowncommunitygardens/*"
           target: "/var/www/html/wp-content/themes/watertowncommunitygardens/"
-          strip_components: 1
+          overwrite: true
