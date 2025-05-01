@@ -3,14 +3,17 @@ const fs = require("fs");
 const fse = require("fs-extra");
 const path = require("path");
 
-const siteSettings = require("./settings.js")();
-
-const buildScripts = require("./build/buildScripts.js");
-const buildStyles = require("./build/buildStyles.js");
-
 // Parse command line arguments for silent mode
 const args = process.argv.slice(2);
 const isSilent = args.includes("--silent") || args.includes("-s");
+
+// Add silent mode to site settings for passing to build modules
+const siteSettings = require("./settings.js")();
+siteSettings.isSilent = isSilent;
+
+const buildTemplates = require("./build/buildTemplates.js");
+const buildScripts = require("./build/buildScripts.js");
+const buildStyles = require("./build/buildStyles.js");
 
 // Custom logging function that respects silent mode
 const log = (message) => {
@@ -44,13 +47,26 @@ const buildSite = () => {
       }
     });
 
-    // Build scripts next
-    buildScripts(siteSettings);
-    log("Scripts built successfully.");
+    // Build templates first - make sure this function actually builds the templates
+    const templatesResult = buildTemplates(siteSettings);
+    log("Templates built successfully.");
+    if (isSilent && templatesResult === false) {
+      throw new Error("Template build failed");
+    }
 
-    // Finally, build styles
-    buildStyles(siteSettings);
+    // Build scripts next - make sure this function actually builds the scripts
+    const scriptsResult = buildScripts(siteSettings);
+    log("Scripts built successfully.");
+    if (isSilent && scriptsResult === false) {
+      throw new Error("Script build failed");
+    }
+
+    // Finally, build styles - make sure this function actually builds the styles
+    const stylesResult = buildStyles(siteSettings);
     log("Styles built successfully.");
+    if (isSilent && stylesResult === false) {
+      throw new Error("Style build failed");
+    }
 
     // Copy assets
     siteSettings.assets.forEach((asset) => {
@@ -59,9 +75,7 @@ const buildSite = () => {
         fse.copySync(srcPath, asset.buildDir, { overwrite: true });
         log(`Assets copied from ${srcPath} to ${asset.buildDir}`);
       } else {
-        if (!isSilent) {
-          console.warn(`Asset source directory not found: ${srcPath}`);
-        }
+        console.warn(`Asset source directory not found: ${srcPath}`);
       }
     });
 
@@ -72,23 +86,37 @@ const buildSite = () => {
         fse.copyFileSync(thumbSrc, thumbDest);
         log(`Site thumbnail copied to ${thumbDest}`);
       } else {
-        if (!isSilent) {
-          console.warn(`Site thumbnail not found: ${thumbSrc}`);
+        console.warn(`Site thumbnail not found: ${thumbSrc}`);
+      }
+    }
+
+    // Add a verification step for silent mode
+    if (isSilent) {
+      // Check if critical files exist and have content
+      const filesToCheck = [
+        path.join(siteSettings.jsFiles[0].buildDir, siteSettings.jsFiles[0].buildFileName),
+        // Add other critical files here
+      ];
+
+      for (const file of filesToCheck) {
+        if (!fs.existsSync(file) || fs.statSync(file).size === 0) {
+          throw new Error(`Build verification failed: File ${file} is missing or empty`);
         }
       }
     }
 
     log("Build process completed successfully.");
+
+    // If in silent mode, exit after build completes (for CI/CD environments)
+    if (isSilent) {
+      process.exit(0);
+    }
   } catch (err) {
     console.error("Error during build process:", err);
     // Always exit with error code in case of failure
     if (isSilent) {
       process.exit(1);
     }
-  }
-  // If in silent mode, exit after build completes (for CI/CD environments)
-  if (isSilent) {
-    process.exit(0);
   }
 };
 
