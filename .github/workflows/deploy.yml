@@ -23,6 +23,14 @@ jobs:
       - name: Build theme
         run: node build.js --silent
 
+      - name: Debug build output
+        run: |
+          ls -la public_html/wp-content/themes/watertowncommunitygardens/
+          du -sh public_html/wp-content/themes/watertowncommunitygardens/
+          find public_html/wp-content/themes/watertowncommunitygardens/ -type f | wc -l
+          ls -la public_html/wp-content/themes/watertowncommunitygardens/js/
+          cat public_html/wp-content/themes/watertowncommunitygardens/style.css | wc -l
+
       - name: Deploy to Digital Ocean
         uses: appleboy/ssh-action@master
         with:
@@ -32,6 +40,7 @@ jobs:
           script: |
             # Create directory if it doesn't exist
             mkdir -p /var/www/html/wp-content/themes/watertowncommunitygardens/
+            mkdir -p /var/www/html/wp-content/themes/watertowncommunitygardens/js/
 
       - name: Copy theme files
         uses: appleboy/scp-action@master
@@ -42,4 +51,17 @@ jobs:
           source: "public_html/wp-content/themes/watertowncommunitygardens/*"
           target: "/var/www/html/wp-content/themes/watertowncommunitygardens/"
           overwrite: true
-          strip_components: 4
+          debug: true
+
+      - name: Verify files on server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: deploy
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            ls -la /var/www/html/wp-content/themes/watertowncommunitygardens/
+            du -sh /var/www/html/wp-content/themes/watertowncommunitygardens/
+            find /var/www/html/wp-content/themes/watertowncommunitygardens/ -type f | wc -l
+            ls -la /var/www/html/wp-content/themes/watertowncommunitygardens/js/
+            head -n 10 /var/www/html/wp-content/themes/watertowncommunitygardens/style.css || echo "Cannot read style.css"
